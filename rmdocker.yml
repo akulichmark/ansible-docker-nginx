@@ -1,0 +1,12 @@
+
+---
+
+- name: Install Docker and run container on hosts
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: Remove task
+    shell: |
+      docker stop $(docker ps -aq) &&
+      docker rm $(docker ps -aq)

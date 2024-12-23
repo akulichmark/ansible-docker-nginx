@@ -1,0 +1,4 @@
+---
+# handlers file for container-run-role
+- name : Stop docker container on Ubuntu
+  shell : docker stop nginx-site

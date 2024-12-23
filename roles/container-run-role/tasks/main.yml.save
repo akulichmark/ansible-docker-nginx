@@ -1,0 +1,38 @@
+---
+# tasks file for container-run-role
+- block: #Install docker on Ubuntu 
+  - name: Install pip
+    apt: "{{ packages }}"
+  - name: Install docker
+    pip:
+     name: docker
+     vars: ansible_python_interpreter=/user/bin/python3
+#    shell: |
+#       apt-get update &&
+#       apt-get install -y ca-certificates curl software-properties-common &&
+#       curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - &&
+#       add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" &&
+#       apt-get update &&
+#       apt-get install -y docker-ce=latest
+  - name: Run docker
+    service: name=docker state=started enabled=yes
+  when: ansible_os_family == "Ubuntu"
+- block: #Install Docker on RedHat
+  - name: Install docker on RedHat
+    shell: |
+       yum update &&
+       yum install -y docker
+  - name: Run docker
+    service: name=docker state=started enabled=yes
+  when: ansible_os_family == "RedHat"
+
+- name: Generate index.html file
+  template: src=index.j2 dest={{ dest_folder }}/index.html mode=0555
+
+- name: Copy files for build
+  copy: src=. dest={{ dest_folder }} mode=0555 remote_src=yes
+
+- name: Build and Container
+  shell: |
+      docker build -t nginx-server {{ dest_folder }} &&
+      docker run -p 80:80 nginx-server

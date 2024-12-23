@@ -1,0 +1,9 @@
+---
+# vars file for container-run-role
+build_dest_folder: /usr/etc/
+dest_folder: /usr/etc/data/site/
+packages:
+    - python3
+    - python3-pip
+    - python3-setuptools
+    - libselinux-python3

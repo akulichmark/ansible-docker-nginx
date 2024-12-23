@@ -1,0 +1,9 @@
+
+---
+
+- name: Install Docker and run container on hosts
+  hosts: all
+  become: yes
+
+  roles:
+    - container-run-role

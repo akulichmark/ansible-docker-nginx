@@ -1,0 +1,56 @@
+---
+# tasks file for container-run-role
+- block: #Install docker on Ubuntu 
+   - name: Install required system packages
+     apt:
+       pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+       state: latest
+       update_cache: true
+   - name: Add Docker GPG apt Key
+     apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+   - name: Add Docker Repository
+     apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+   - name: Update apt and install docker-ce
+     apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+   - name: Run docker
+     service: name=docker state=started enabled=yes
+  when: ansible_os_family == "Debian"
+
+- block: #Install Docker on RedHat
+  - name: Install docker on RedHat
+    shell: |
+       yum update &&
+       yum install -y docker
+  - name: Run docker
+    service: name=docker state=started enabled=yes
+  when: ansible_os_family == "RedHat"
+
+- name: Copy files for build
+  copy: src=files/ dest={{ build_dest_folder }} mode=0555
+
+- name: Generate index.html
+  template: src=index.j2 dest={{ dest_folder }}/index.html mode=0555
+
+- name: Build and Container
+  shell: docker build -t nginx-server {{ build_dest_folder }}
+  register: results
+  delay: 5
+- debug:
+    var: results
+- name: Run container
+  shell: docker run -p 80:80 -d nginx-server
+
