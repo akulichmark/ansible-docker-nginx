@@ -1,2 +1,6 @@
 test.yml
+<<<<<<< HEAD
 
+=======
+!roles/container-run-role/tests/test.yml
+>>>>>>> 795399b (add gitignore)
